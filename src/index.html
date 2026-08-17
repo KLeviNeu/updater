@@ -10,42 +10,44 @@
   <div class="container">
     <h1>Packwiz Instance Manager</h1>
 
-    <!-- Add Instance Section -->
+    <!-- Add / Run Instance Section -->
     <section class="card">
       <h2>Add Instance</h2>
       <div class="form-grid">
         <div class="field">
-          <label for="nameInput">Instance Name</label>
-          <input type="text" id="nameInput" placeholder="My Modpack Instance" />
+          <label for="nameInput">Instance / Repo Name</label>
+          <input type="text" id="nameInput" placeholder="My Modpack" />
         </div>
 
         <div class="field">
-          <label for="folderSelect">Select Scanned Folder</label>
+          <label for="urlInput">Repository Remote URL</label>
+          <input type="text" id="urlInput" placeholder="https://github.com/user/repo.git" />
+        </div>
+
+        <div class="field">
+          <label for="folderSelect">Select Version Folder</label>
           <select id="folderSelect">
-            <option value="">Loading scanned folders...</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="repoSelect">Select Scanned Git Repository</label>
-          <select id="repoSelect">
-            <option value="">Loading scanned repos...</option>
+            <option value="">Scanning .minecraft/versions...</option>
           </select>
         </div>
       </div>
-      <button id="btnAdd" class="btn-primary">Save & Run Packwiz</button>
+
+      <div class="button-group" style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+        <button id="btnAdd" class="btn-primary">Save Instance</button>
+        <button id="btnRunPackwiz" class="btn-secondary">Run Packwiz</button>
+      </div>
     </section>
 
     <!-- Instances List Section -->
     <section class="card">
       <div class="header-row">
         <h2>Saved Instances</h2>
-        <span id="scanStatus" class="status-text">Scanning folders...</span>
+        <span id="scanStatus" class="status-text">Scanning...</span>
       </div>
       <ul id="instanceList" class="instance-list"></ul>
     </section>
   </div>
 
-  <script type="module" src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
