@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Packwiz Instance Manager</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Packwiz Instance Manager</h1>
+
+    <!-- Add Instance Section -->
+    <section class="card">
+      <h2>Add Instance</h2>
+      <div class="form-grid">
+        <div class="field">
+          <label for="nameInput">Instance Name</label>
+          <input type="text" id="nameInput" placeholder="My Modpack Instance" />
+        </div>
+
+        <div class="field">
+          <label for="folderSelect">Select Scanned Folder</label>
+          <select id="folderSelect">
+            <option value="">Loading scanned folders...</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="repoSelect">Select Scanned Git Repository</label>
+          <select id="repoSelect">
+            <option value="">Loading scanned repos...</option>
+          </select>
+        </div>
+      </div>
+      <button id="btnAdd" class="btn-primary">Save & Run Packwiz</button>
+    </section>
+
+    <!-- Instances List Section -->
+    <section class="card">
+      <div class="header-row">
+        <h2>Saved Instances</h2>
+        <span id="scanStatus" class="status-text">Scanning folders...</span>
+      </div>
+      <ul id="instanceList" class="instance-list"></ul>
+    </section>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
