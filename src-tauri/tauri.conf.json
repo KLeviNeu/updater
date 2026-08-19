@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "updater",
-  "version": "0.1.0",
+  "productName": "Draw Wizard",
+  "version": "1.0.0",
   "identifier": "com.komar.updater",
   "build": {
     "beforeBuildCommand": "npm run build",
@@ -11,14 +11,23 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "updater",
+        "label": "main",
+        "title": "Draw Wizard",
         "width": 800,
         "height": 600,
-        "visible": false
+        "visible": true
       }
     ],
     "security": {
       "csp": null
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEExMDRGODFFRDJENzk5MjgKUldRb21kZlNIdmdFb1JxWmZ2QUVMcVZ1Zi9iclV2cFVzT0dUajUyS2NKaDZicnF3Z1k3SklIYVgK",
+      "endpoints": [
+        "https://raw.githubusercontent.com/KLeviNeu/Draw-Wizard/refs/heads/main/latest.json"
+      ]
     }
   },
   "bundle": {

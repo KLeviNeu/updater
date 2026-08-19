@@ -2,6 +2,43 @@
   // Use global Tauri APIs provided when withGlobalTauri is true
   const { invoke } = window.__TAURI__.core;
   const { getCurrentWindow } = window.__TAURI__.window;
+  const { check } = window.__TAURI__.updater;
+  const { relaunch } = window.__TAURI__.process;
+  const { getVersion } = window.__TAURI__.app;
+
+  async function checkForUpdates() {
+    try {
+      const update = await check();
+
+      if (update) {
+        console.log(`Update available: ${update.version}`);
+
+        let downloaded = 0;
+        let contentLength = 0;
+
+        await update.downloadAndInstall((event) => {
+          switch (event.event) {
+            case 'Started':
+              contentLength = event.data.contentLength;
+              console.log(`Started downloading ${contentLength} bytes`);
+              break;
+            case 'Progress':
+              downloaded += event.data.chunkLength;
+              console.log(`Downloaded ${downloaded}/${contentLength}`);
+              break;
+            case 'Finished':
+              console.log('Download finished');
+              break;
+          }
+        });
+
+        // Relaunch the app to apply the update
+        await relaunch();
+      }
+    } catch (error) {
+      console.error('Failed to check for updates:', error);
+    }
+  }
 
   const JSON_FILE = 'instances.json';
 
@@ -16,22 +53,32 @@
 
   // App Initialization
   async function init() {
-    await Promise.all([
-      runAutoScan(),
-      loadInstances()
-    ]);
-
-    // Execute packwiz for all saved instances on launch
-    await runPackwizAll();
-
-    // Ensure the main window is visible when opened manually
-    try {
-      const appWindow = getCurrentWindow();
-      await appWindow.show();
-    } catch (e) {
-      console.warn('Could not show window:', e);
+  // Get version from tauri.conf.json / Cargo.toml
+  try {
+    const appVersion = await getVersion();
+    const versionElement = document.getElementById('appVersion');
+    if (versionElement) {
+      versionElement.textContent = `v${appVersion}`;
     }
+  } catch (e) {
+    console.warn('Could not fetch app version:', e);
   }
+
+  await Promise.all([
+    checkForUpdates(),
+    runAutoScan(),
+    loadInstances()
+  ]);
+
+  await runPackwizAll();
+
+  try {
+    const appWindow = getCurrentWindow();
+    await appWindow.show();
+  } catch (e) {
+    console.warn('Could not show window:', e);
+  }
+}
 
   // Scan .minecraft/versions directory
   async function runAutoScan() {
@@ -111,7 +158,7 @@
       const instances = await invoke('get_instances');
       for (const inst of instances) {
         if (inst.folder && inst.url) {
-          await invoke('run_packwiz_command', {
+          await invoke('add_or_update_instance', {
             folder: inst.folder,
             url: inst.url,
             repoName: inst.repo_name
@@ -139,8 +186,7 @@
       await invoke('add_or_update_instance', {
         folder: selectedFolder,
         url: remoteUrl,
-        repoName: repoName,
-        jsonFile: JSON_FILE
+        repoName: repoName
       });
 
       nameInput.value = '';
@@ -156,36 +202,25 @@
 
   // Trigger manual Packwiz execution
   async function handleRunPackwizManual() {
-    const selectedFolder = folderSelect.value;
-    const remoteUrl = urlInput.value.trim();
-    const repoName = nameInput.value.trim();
+  btnRunPackwiz.disabled = true;
+  btnRunPackwiz.innerText = 'Running on all instances...';
 
-    btnRunPackwiz.disabled = true;
-    btnRunPackwiz.innerText = 'Running...';
-
-    try {
-      if (!selectedFolder) {
-        await runPackwizAll();
-      } else {
-        await invoke('run_packwiz_command', {
-          folder: selectedFolder,
-          url: remoteUrl,
-          repoName: repoName
-        });
-      }
-      alert('Packwiz command executed!');
-    } catch (error) {
-      alert('Packwiz error: ' + error);
-    } finally {
-      btnRunPackwiz.disabled = false;
-      btnRunPackwiz.innerText = 'Run Packwiz';
-    }
+  try {
+    await invoke('run_packwiz_all');
+    alert('Packwiz updated all saved instances successfully!');
+  } catch (error) {
+    console.error('Failed to run packwiz on instances:', error);
+    alert('Packwiz error: ' + error);
+  } finally {
+    btnRunPackwiz.disabled = false;
+    btnRunPackwiz.innerText = 'Run Packwiz';
   }
+}
 
   // Delete instance
   async function handleDelete(folderPath) {
     try {
-      await invoke('delete_instance', { folder: folderPath, jsonFile: JSON_FILE });
+      await invoke('delete_instance', { folder: folderPath });
       await loadInstances();
     } catch (error) {
       alert('Failed to delete instance: ' + error);
